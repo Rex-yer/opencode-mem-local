@@ -146,17 +146,12 @@ export class VectorSearch {
     const placeholders = ids.map(() => "?").join(",");
     const rows = db
       .prepare(
-        containerTag === ""
-          ? `
+        `
       SELECT * FROM memories
       WHERE id IN (${placeholders})
     `
-          : `
-      SELECT * FROM memories
-      WHERE id IN (${placeholders}) AND container_tag = ?
-    `
       )
-      .all(...ids, ...(containerTag === "" ? [] : [containerTag])) as any[];
+      .all(...ids) as any[];
 
     const queryWords = queryText
       ? queryText
@@ -179,7 +174,8 @@ export class VectorSearch {
       }
 
       const finalTagsSim = Math.max(scores.tagsSim, exactMatchBoost);
-      const similarity = scores.contentSim * 0.6 + finalTagsSim * 0.4;
+      const rawSimilarity = scores.contentSim * 0.6 + finalTagsSim * 0.4;
+      const similarity = Math.round(rawSimilarity * 100);
 
       return {
         id: row.id,

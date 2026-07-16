@@ -34,6 +34,7 @@ interface OpenCodeMemConfig {
   embeddingAllowRemoteModels?: boolean;
   similarityThreshold?: number;
   maxMemories?: number;
+  perTokenLimit?: number;
   maxProfileItems?: number;
   injectProfile?: boolean;
   containerTagPrefix?: string;
@@ -135,8 +136,9 @@ const DEFAULTS: Required<
   embeddingModel: "Xenova/nomic-embed-text-v1",
   embeddingDimensions: 768,
   embeddingAllowRemoteModels: true,
-  similarityThreshold: 0.6,
+  similarityThreshold: 60,
   maxMemories: 10,
+  perTokenLimit: 3,
   maxProfileItems: 5,
   injectProfile: true,
   containerTagPrefix: "opencode",
@@ -469,10 +471,13 @@ const CONFIG_TEMPLATE = `{
   // ============================================
   
   // Minimum similarity score (0-1) for memory search results
-  "similarityThreshold": 0.6,
+  "similarityThreshold": 60,
 
   // Maximum number of memories to return in search results
   "maxMemories": 10,
+
+  // Maximum results per keyword in multi-keyword search
+  "perTokenLimit": 3,
 
   // ============================================
   // Advanced Settings
@@ -558,6 +563,7 @@ function buildConfig(fileConfig: OpenCodeMemConfig) {
       : undefined,
     similarityThreshold: fileConfig.similarityThreshold ?? DEFAULTS.similarityThreshold,
     maxMemories: fileConfig.maxMemories ?? DEFAULTS.maxMemories,
+    perTokenLimit: fileConfig.perTokenLimit ?? DEFAULTS.perTokenLimit,
     maxProfileItems: fileConfig.maxProfileItems ?? DEFAULTS.maxProfileItems,
     injectProfile: fileConfig.injectProfile ?? DEFAULTS.injectProfile,
     containerTagPrefix: fileConfig.containerTagPrefix ?? DEFAULTS.containerTagPrefix,

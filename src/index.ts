@@ -268,7 +268,7 @@ export const OpenCodeMemPlugin: Plugin = async (ctx: PluginInput) => {
 
         const projectMemories = {
           results: memories.map((m: any) => ({
-            similarity: 1.0,
+            similarity: 100,
             memory: m.summary,
           })),
           total: memories.length,
@@ -415,7 +415,8 @@ export const OpenCodeMemPlugin: Plugin = async (ctx: PluginInput) => {
                 const searchRes = await memoryClient.searchMemories(
                   args.query,
                   tags.project.tag,
-                  args.scope ?? CONFIG.memory.defaultScope
+                  args.scope ?? CONFIG.memory.defaultScope,
+                  CONFIG.maxMemories
                 );
                 if (!searchRes.success)
                   return JSON.stringify({ success: false, error: searchRes.error });
@@ -644,7 +645,7 @@ function formatSearchResults(query: string, results: any, limit?: number): strin
     results: memoryResults.slice(0, limit || 10).map((r: any) => ({
       id: r.id,
       content: r.memory || r.chunk,
-      similarity: Math.round(r.similarity * 100),
+      similarity: r.similarity,
     })),
   });
 }

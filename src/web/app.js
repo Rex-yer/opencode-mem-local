@@ -3,10 +3,6 @@ const API_BASE = "";
 const state = {
   tags: { project: [] },
   memories: [],
-  currentPage: 1,
-  pageSize: 20,
-  totalPages: 1,
-  totalItems: 0,
   selectedTag: "",
   currentView: "project",
   searchQuery: "",
@@ -150,7 +146,7 @@ function renderCombinedCard(pair) {
   const isPinned = memory.isPinned || false;
   const similarityHtml =
     memory.similarity !== undefined
-      ? `<span class="similarity-score">${Math.round(memory.similarity * 100)}%</span>`
+      ? `<span class="similarity-score">${memory.similarity}%</span>`
       : "";
 
   const tagsHtml =
@@ -349,23 +345,10 @@ function updateBulkActions() {
   }
 }
 
-function updatePagination() {
-  const pageInfo = t("text-page", { current: state.currentPage, total: state.totalPages });
-  document.getElementById("page-info-top").textContent = pageInfo;
-  document.getElementById("page-info-bottom").textContent = pageInfo;
-  const hasPrev = state.currentPage > 1;
-  const hasNext = state.currentPage < state.totalPages;
-
-  document.getElementById("prev-page-top").disabled = !hasPrev;
-  document.getElementById("next-page-top").disabled = !hasNext;
-  document.getElementById("prev-page-bottom").disabled = !hasPrev;
-  document.getElementById("next-page-bottom").disabled = !hasNext;
-}
-
 function updateSectionTitle() {
   const title = state.isSearching
-    ? `└─ SEARCH RESULTS (${state.totalItems}) ──`
-    : t("section-project", { count: state.totalItems });
+    ? `└─ SEARCH RESULTS (${state.memories.length}) ──`
+    : t("section-project", { count: state.memories.length });
   document.getElementById("section-title").textContent = title;
 }
 
@@ -416,10 +399,10 @@ async function addMemory(e) {
 async function loadMemories() {
   showRefreshIndicator(true);
 
-  let endpoint = `/api/memories?page=${state.currentPage}&pageSize=${state.pageSize}&includePrompts=true`;
+  let endpoint = `/api/memories?includePrompts=true`;
 
   if (state.isSearching) {
-    endpoint = `/api/search?q=${encodeURIComponent(state.searchQuery || "")}&page=${state.currentPage}&pageSize=${state.pageSize}`;
+    endpoint = `/api/search?q=${encodeURIComponent(state.searchQuery || "")}`;
     if (state.selectedTag) {
       endpoint += `&tag=${encodeURIComponent(state.selectedTag)}`;
     }
@@ -435,12 +418,8 @@ async function loadMemories() {
 
   if (result.success) {
     state.memories = result.data.items;
-    state.totalPages = result.data.totalPages;
-    state.totalItems = result.data.total;
-    state.currentPage = result.data.page;
 
     renderMemories();
-    updatePagination();
     updateSectionTitle();
   } else {
     showError(result.error || t("toast-update-failed"));
@@ -612,14 +591,6 @@ function clearSearch() {
   document.getElementById("search-input").value = "";
   document.getElementById("clear-search-btn").classList.add("hidden");
 
-  loadMemories();
-}
-
-function changePage(delta) {
-  const newPage = state.currentPage + delta;
-  if (newPage < 1 || newPage > state.totalPages) return;
-
-  state.currentPage = newPage;
   loadMemories();
 }
 

@@ -112,11 +112,15 @@ export class LocalMemoryClient {
     connectionManager.closeAll();
   }
 
-  async searchMemories(query: string, containerTag: string, scope: MemoryScope = "project") {
+  async searchMemories(
+    query: string,
+    containerTag: string,
+    scope: MemoryScope = "project",
+    maxResults?: number
+  ) {
     try {
       await this.initialize();
 
-      const queryVector = await embeddingService.embedWithTimeout(query);
       const resolved = resolveScopeValue(scope, containerTag);
       const shards = shardManager.getAllShards(resolved.scope, resolved.hash);
 
@@ -124,14 +128,36 @@ export class LocalMemoryClient {
         return { success: true as const, results: [], total: 0, timing: 0 };
       }
 
-      const results = await vectorSearch.searchAcrossShards(
-        shards,
-        queryVector,
-        scope === "all-projects" ? "" : containerTag,
-        CONFIG.maxMemories,
-        CONFIG.similarityThreshold,
-        query
-      );
+      const SUB_QUERY_LIMIT = CONFIG.perTokenLimit;
+
+      const tokens = query.split(/[\s,]+/).filter((w) => w.length > 0);
+
+      const allResults: any[] = [];
+
+      for (const token of tokens) {
+        const queryVector = await embeddingService.embedWithTimeout(token);
+        const results = await vectorSearch.searchAcrossShards(
+          shards,
+          queryVector,
+          scope === "all-projects" ? "" : containerTag,
+          SUB_QUERY_LIMIT,
+          CONFIG.similarityThreshold,
+          token
+        );
+        allResults.push(...results);
+      }
+
+      const seen = new Map<string, any>();
+      for (const r of allResults) {
+        const existing = seen.get(r.id);
+        if (!existing || r.similarity > existing.similarity) {
+          seen.set(r.id, r);
+        }
+      }
+
+      let merged = Array.from(seen.values());
+      merged.sort((a, b) => b.similarity - a.similarity);
+      const results = maxResults ? merged.slice(0, maxResults) : merged;
 
       return { success: true as const, results, total: results.length, timing: 0 };
     } catch (error) {
@@ -380,7 +406,7 @@ export class LocalMemoryClient {
       const results = allMemories.slice(0, limit).map((row: any) => ({
         id: row.id,
         memory: row.content,
-        similarity: 1.0,
+        similarity: 100,
         tags: row.tags || [],
         metadata: row.metadata || {},
         containerTag: row.container_tag,

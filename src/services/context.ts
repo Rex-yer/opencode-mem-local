@@ -28,7 +28,7 @@ export function formatContextForPrompt(
   if (projectResults.length > 0) {
     parts.push("\nProject Knowledge:");
     projectResults.forEach((mem) => {
-      const similarity = Math.round(mem.similarity * 100);
+      const similarity = mem.similarity;
       const content = mem.memory || mem.chunk || "";
       parts.push(`- [${similarity}%] ${content}`);
     });

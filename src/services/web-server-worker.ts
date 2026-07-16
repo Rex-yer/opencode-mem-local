@@ -87,10 +87,8 @@ async function handleRequest(req: Request): Promise<Response> {
 
     if (path === "/api/memories" && method === "GET") {
       const tag = url.searchParams.get("tag") || undefined;
-      const page = parseInt(url.searchParams.get("page") || "1");
-      const pageSize = parseInt(url.searchParams.get("pageSize") || "20");
       const includePrompts = url.searchParams.get("includePrompts") !== "false";
-      const result = await handleListMemories(tag, page, pageSize, includePrompts);
+      const result = await handleListMemories(tag, includePrompts);
       return jsonResponse(result);
     }
 
@@ -131,14 +129,12 @@ async function handleRequest(req: Request): Promise<Response> {
     if (path === "/api/search" && method === "GET") {
       const query = url.searchParams.get("q");
       const tag = url.searchParams.get("tag") || undefined;
-      const page = parseInt(url.searchParams.get("page") || "1");
-      const pageSize = parseInt(url.searchParams.get("pageSize") || "20");
 
       if (!query) {
         return jsonResponse({ success: false, error: "query parameter required" });
       }
 
-      const result = await handleSearch(query, tag, page, pageSize);
+      const result = await handleSearch(query, tag);
       return jsonResponse(result);
     }
 
