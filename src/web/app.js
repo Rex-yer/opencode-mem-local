@@ -576,7 +576,6 @@ function performSearch() {
 
   state.searchQuery = query;
   state.isSearching = true;
-  state.currentPage = 1;
 
   document.getElementById("clear-search-btn").classList.remove("hidden");
 
@@ -586,7 +585,6 @@ function performSearch() {
 function clearSearch() {
   state.searchQuery = "";
   state.isSearching = false;
-  state.currentPage = 1;
 
   document.getElementById("search-input").value = "";
   document.getElementById("clear-search-btn").classList.add("hidden");
@@ -1809,7 +1807,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("tag-filter").addEventListener("change", () => {
     state.selectedTag = document.getElementById("tag-filter").value;
-    state.currentPage = 1;
     state.isSearching = false;
     state.searchQuery = "";
     document.getElementById("search-input").value = "";
@@ -1827,11 +1824,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("edit-form").addEventListener("submit", saveEdit);
   document.getElementById("modal-close").addEventListener("click", closeModal);
   document.getElementById("cancel-edit").addEventListener("click", closeModal);
-
-  document.getElementById("prev-page-top").addEventListener("click", () => changePage(-1));
-  document.getElementById("next-page-top").addEventListener("click", () => changePage(1));
-  document.getElementById("prev-page-bottom").addEventListener("click", () => changePage(-1));
-  document.getElementById("next-page-bottom").addEventListener("click", () => changePage(1));
 
   document.getElementById("bulk-delete-btn").addEventListener("click", bulkDelete);
   document.getElementById("select-all-btn").addEventListener("click", selectAllCurrentPage);

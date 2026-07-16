@@ -72,7 +72,6 @@ const translations = {
     "confirm-cleanup": "This will remove all memories that are no longer relevant. Continue?",
     "confirm-dedup": "This will merge duplicate or highly similar memories. Continue?",
     "text-selected": "{count} selected",
-    "text-page": "Page {current} of {total}",
     "text-total": "Total: {count}",
     "empty-memories": "No memories found",
     "empty-changelog": "No changelog available",
@@ -213,7 +212,6 @@ const translations = {
     "confirm-cleanup": "这将删除所有不再相关的记忆。是否继续？",
     "confirm-dedup": "这将合并重复或高度相似的记忆。是否继续？",
     "text-selected": "已选择 {count} 条",
-    "text-page": "第 {current} 页，共 {total} 页",
     "text-total": "总计: {count}",
     "empty-memories": "未找到记忆",
     "empty-changelog": "暂无更新日志",
@@ -381,7 +379,6 @@ const translations = {
     "confirm-dedup": "سيؤدي هذا إلى دمج الذكريات المتكررة أو المتشابهة جدًا. هل تريد المتابعة؟",
 
     "text-selected": "تم تحديد {count}",
-    "text-page": "الصفحة {current} من {total}",
     "text-total": "الإجمالي: {count}",
 
     "empty-memories": "لم يتم العثور على ذكريات",
