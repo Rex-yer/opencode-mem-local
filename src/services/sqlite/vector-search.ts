@@ -174,7 +174,7 @@ export class VectorSearch {
       }
 
       const finalTagsSim = Math.max(scores.tagsSim, exactMatchBoost);
-      const rawSimilarity = scores.contentSim * 0.6 + finalTagsSim * 0.4;
+      const rawSimilarity = scores.contentSim * 0.5 + finalTagsSim * 0.5;
       const similarity = Math.round(rawSimilarity * 100);
 
       return {

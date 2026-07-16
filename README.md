@@ -104,6 +104,10 @@ The plugin creates a full commented template at this path on first startup. This
 
   "userProfileAnalysisInterval": 10,
   "maxMemories": 10,
+  "perTokenLimit": 3,
+  "similarityThreshold": 20,
+  "perTokenLimit": 3,
+  "similarityThreshold": 20,
 
   "compaction": {
     "enabled": true,
@@ -124,6 +128,26 @@ The plugin creates a full commented template at this path on first startup. This
 - `scope: "project"`: query only the current project. This is the default.
 - `scope: "all-projects"`: query `search` / `list` across all project shards.
 - `memory.defaultScope` sets the default query scope when no explicit scope is provided.
+
+### Search Scoring
+
+Memory search uses a multi-keyword approach with the following scoring formula:
+
+```
+最终分数 = contentSim × 0.5 + finalTagsSim × 0.5
+```
+
+- **contentSim**: Semantic similarity between query and memory content (0-100)
+- **tagsSim**: Semantic similarity between query and memory tags (0-100)
+- **exactMatchBoost**: Exact/substring match of query words to tags (0-1)
+- **finalTagsSim**: `max(tagsSim, exactMatchBoost)` - takes the higher of semantic or exact match
+
+**Multi-keyword search**: Queries are tokenized by spaces/commas. Each token runs a separate sub-query (limited by `perTokenLimit`), then results are merged and deduplicated.
+
+**Example**:
+
+- Query "编程" → "编程基础" (exactMatchBoost=1.0) → score 77
+- Query "天气" → no tag match → score ≤13 (filtered by threshold)
 
 ### Sharing One Project Memory Across Nested Repos
 
